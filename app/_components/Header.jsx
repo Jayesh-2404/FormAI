@@ -7,20 +7,32 @@ import { usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
 
 function Header() {
-    const {user, isSignedIn} = useUser();
-    return (
-    <div className='p-5 border-b shadow-sm'>
-        <div className='flex justify-between items-center'>
-            
-            <Image src="/logo.svg" alt="Logo" width={150} height={100} />
-           {isSignedIn?
+  const {user,isSignedIn}=useUser();
+  const path=usePathname();
+  useEffect(()=>{
+    console.log(path)
+  },[])
+  return !path.includes('aiform')&&(
+    <div className='p-3 px-5 border-b shadow-sm'>
+        <div className='flex items-center justify-between'>
+            <Image src={'/logo.svg'} 
+            width={180} height={50} alt='logo'/>
+            {isSignedIn?
             <div className='flex items-center gap-5'>
-            <Button variant = "outline">Dashboard</Button>
+              <Link href={'/dashboard'}>
+              <Button variant="outline">Dashboard</Button>  
+              </Link>
             <UserButton/>
             </div>:
-            <Button>Get Started</Button>
-           }
-        </div>    
+            <SignInButton>
+              <Button>Get Started</Button>
+            </SignInButton>
+           
+          }
+            
+        </div>
+
+        
     </div>
   )
 }
