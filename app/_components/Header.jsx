@@ -10,7 +10,7 @@ function Header() {
   const {user,isSignedIn}=useUser();
   const path=usePathname();
   useEffect(()=>{
-    console.log(path)
+    // console.log(path)
   },[])
   return !path.includes('aiform')&&(
     <div className='p-3 px-5 border-b shadow-sm'>

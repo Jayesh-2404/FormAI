@@ -40,8 +40,10 @@ function SideNav() {
     const {user}=useUser();
     const path=usePathname();
     const [formList,setFormList]=useState();
+    const [PercFileCreated,setPercFileCreated]=useState(0);
 
     useEffect(()=>{
+      
         user&&GetFormList()
     },[user])
 
@@ -74,7 +76,10 @@ function SideNav() {
         <div className='fixed bottom-7 p-6 w-64 '>
             <Button className="w-full">+ Create Form</Button>
             <div className='my-7'>
-            <h2 className='text-sm mt-3 text-gray-600'>Upgrade your plan for unlimited AI form build</h2>
+            <Progress value={PercFileCreated} />
+            <h2 className='text-sm mt-2 text-gray-600'><strong>{formList?.length} </strong>Out of <strong>3</strong> File Created</h2>
+            <h2 className='text-sm mt-3 text-gray-600'>Upgrade your plan for unlimted AI form build</h2>
+            
             </div>
         </div>
     </div>

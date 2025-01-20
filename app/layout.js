@@ -2,6 +2,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "./_components/Header";
 import { ClerkProvider, SignIn } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
+import { useTheme } from 'next-themes';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +20,7 @@ export default function RootLayout({ children }) {
         <Header/>
        
         {children}
-        
+        <Toaster />
       </body>
     </html>
     </ClerkProvider>
