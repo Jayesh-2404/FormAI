@@ -1,5 +1,5 @@
 "use client"
-import FormUi from '@/app/edit-form/_components/FormUi'
+import FormUi from '@/app/edit_form/_components/FormUi'
 import { db } from '@/configs'
 import { JsonForms } from '@/configs/schema'
 import { SignIn, SignInButton } from '@clerk/nextjs'
