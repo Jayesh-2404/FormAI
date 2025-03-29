@@ -3,7 +3,7 @@ import React from 'react'
 
 function Hero() {
   return (
-    // bg-[url('/grid.svg')]
+    
     <section className=" h-[500px] bg-[url('/grid.svg')]">
   <div className="mx-auto max-w-screen-xl z-30 px-4 pt-32 lg:flex  ">
     <div className="mx-auto max-w-xl text-center">
@@ -19,7 +19,7 @@ function Hero() {
       <div className="mt-8 flex flex-wrap justify-center gap-4">
         <a
           className="block w-full rounded bg-primary px-12 py-3 text-sm font-medium text-white shadow hover:bg-purple-600 focus:outline-none focus:ring active:bg-red-500 sm:w-auto"
-          href="#"
+          href="/dashboard"
         >
           + Create AI Form
         </a>
