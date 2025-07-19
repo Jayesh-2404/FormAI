@@ -23,18 +23,7 @@ function SideNav() {
             icon: MessageSquare,
             path: '/dashboard/responses',
         },
-        {
-            id: 3,
-            name: 'Analytics',
-            icon: LineChart,
-            path: '/dashboard/analytics',
-        },
-        {
-            id: 4,
-            name: 'Upgrade',
-            icon: Shield,
-            path: '/dashboard/upgrade',
-        },
+
     ];
 
     const { user } = useUser();
@@ -81,7 +70,7 @@ function SideNav() {
                         <Link
                             href={menu.path}
                             key={index}
-                            className={`flex items-center gap-3 p-4 mb-3 
+                            className={`flex items-center gap-3 p-4 mb-3
                             hover:bg-primary hover:text-white rounded-lg
                             cursor-pointer text-gray-500
                             ${path === menu.path && 'bg-primary text-white'}
@@ -95,7 +84,7 @@ function SideNav() {
                     ))}
                 </div>
                 <div className="mt-auto p-6 sm:w-64 w-full">
-                    <Button className="w-full">+ Create Form</Button>
+                    {/* <Button className="w-full">+ Create Form</Button> */}
                     <div className="my-7">
                         <Progress value={PercFileCreated} />
                         <h2 className="text-sm mt-2 text-gray-600">
