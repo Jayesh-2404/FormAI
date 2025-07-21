@@ -7,6 +7,21 @@ export default {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    fontFamily: {
+      sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+      accent: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
+    },
+    transitionDuration: {
+      'smooth': '250ms',
+      'micro': '300ms'
+    },
+    transitionTimingFunction: {
+      'smooth': 'ease-in-out'
+    },
+    boxShadow: {
+      'cta': '0 4px 14px 0 rgba(139, 92, 246, 0.15)',
+      'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+    },
   	extend: {
   		colors: {
   			background: 'hsl(var(--background))',
@@ -54,7 +69,11 @@ export default {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)',
+        'gradient-accent': 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+      }
   	}
   },
   daisyui: {

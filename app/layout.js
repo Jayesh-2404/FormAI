@@ -1,11 +1,19 @@
-import { Inter } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "./_components/Header";
-import { ClerkProvider, SignIn } from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
-import { useTheme } from 'next-themes';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"], 
+  variable: '--font-inter' 
+});
+
+const poppins = Poppins({ 
+  subsets: ["latin"],
+  weight: ['500', '600'],
+  variable: '--font-poppins'
+});
 
 export const metadata = {
   title: "FormAI",
@@ -19,9 +27,9 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body className={inter.className}>
+      {/* CORRECT: We use the .variable property from our consts above */}
+      <body className={`${inter.variable} ${poppins.variable} font-sans`}>
         <Header/>
-       
         {children}
         <Toaster />
       </body>

@@ -1,5 +1,3 @@
-// app/dashboard/_components/FormListItem.jsx
-
 import { Button } from '@/components/ui/button'
 import { Edit, Share, Trash, MessageSquare, CalendarDays } from 'lucide-react'
 import Link from 'next/link'
@@ -28,7 +26,6 @@ function FormListItem({formRecord,jsonForm,refreshData}) {
     const [responseCount, setResponseCount] = useState(null); // Use null for initial loading state
 
     useEffect(() => {
-        // Function to fetch the response count for this specific form
         const getResponseCount = async () => {
             if (formRecord?.id) {
                 const result = await db.select().from(userResponses)
@@ -37,7 +34,7 @@ function FormListItem({formRecord,jsonForm,refreshData}) {
             }
         };
         getResponseCount();
-    }, [formRecord]); // Rerun effect if formRecord changes
+    }, [formRecord]);
 
     const onDeleteForm=async()=>{
         const result=await db.delete(JsonForms)
@@ -54,20 +51,20 @@ function FormListItem({formRecord,jsonForm,refreshData}) {
     }
 
   return (
-    <div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col h-full'>
-        <div className='p-4'>
+    <div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col h-full'>
+        <div className='p-5 flex-grow'>
             <div className='flex justify-between items-start'>
                 <div className="flex-grow pr-4">
-                    <h2 className='text-lg font-semibold text-gray-900 dark:text-white truncate' title={jsonForm?.formTitle}>
+                    <h2 className='text-lg font-bold text-gray-900 dark:text-white truncate' title={jsonForm?.formTitle}>
                         {jsonForm?.formTitle}
                     </h2>
-                    <p className='text-sm text-gray-500 dark:text-gray-400 mt-1 h-10 overflow-hidden'>
+                    <p className='text-sm text-gray-500 dark:text-gray-400 mt-1 h-10 overflow-hidden text-ellipsis'>
                         {jsonForm?.formHeading}
                     </p>
                 </div>
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-full flex-shrink-0">
+                        <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-full flex-shrink-0 h-8 w-8">
                            <Trash className='h-4 w-4' />
                         </Button>
                     </AlertDialogTrigger>
@@ -76,7 +73,7 @@ function FormListItem({formRecord,jsonForm,refreshData}) {
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                             <AlertDialogDescription>
                                 This action cannot be undone. This will permanently delete this form
-                                and all of its responses.
+                                and all associated responses.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -92,22 +89,21 @@ function FormListItem({formRecord,jsonForm,refreshData}) {
                 </AlertDialog>
             </div>
 
-            <div className='mt-4 flex flex-col gap-2 text-sm text-gray-600 dark:text-gray-300'>
+            <div className='mt-6 space-y-3 text-sm text-gray-600 dark:text-gray-300'>
                 <div className='flex items-center gap-2'>
                     <MessageSquare className='h-4 w-4 text-gray-400' />
-                    {/* Display the dynamic response count */}
-                    <span>
+                    <span className="font-medium">
                         {responseCount === null ? 'Loading...' : `${responseCount} Responses`}
                     </span>
                 </div>
                 <div className='flex items-center gap-2'>
                     <CalendarDays className='h-4 w-4 text-gray-400' />
-                    <span>Created: {formRecord.createdAt}</span>
+                    <span className='font-medium'>Created on {formRecord.createdAt}</span>
                 </div>
             </div>
         </div>
 
-        <div className='border-t border-gray-100 dark:border-gray-700 mt-auto p-3 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl flex justify-between items-center'>
+        <div className='border-t border-gray-100 dark:border-gray-700 mt-auto p-3 bg-slate-50 dark:bg-gray-800/50 rounded-b-xl flex justify-end items-center gap-2'>
             <RWebShare
                 data={{
                     text: jsonForm?.formHeading+" , Build your form in seconds with AI form Builder ",
@@ -119,7 +115,7 @@ function FormListItem({formRecord,jsonForm,refreshData}) {
                 <Button variant="outline" size="sm" className="flex gap-2"> <Share className='h-4 w-4'/> Share</Button>
             </RWebShare>
             <Link href={'/edit_form/'+formRecord?.id}>
-                <Button className="flex gap-2"  size="sm"> <Edit className='h-4 w-4'/> Edit</Button>
+                <Button size="sm" className="flex gap-2"> <Edit className='h-4 w-4'/> Edit</Button>
             </Link>
         </div>
     </div>

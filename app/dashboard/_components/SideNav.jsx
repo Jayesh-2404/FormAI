@@ -2,9 +2,10 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { db } from '@/configs';
 import { JsonForms } from '@/configs/schema';
-import { useUser } from '@clerk/nextjs';
+import { useUser, UserButton } from '@clerk/nextjs';
 import { desc, eq } from 'drizzle-orm';
 import { LibraryBig, LineChart, MessageSquare, Shield, MoreVertical } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -50,61 +51,44 @@ function SideNav() {
     };
 
     return (
-        <>
-            {/* 3-Dots Button for Smaller Screens */}
-            <button
-                className="sm:hidden fixed top-4 right-40 z-50 p-2 bg-white shadow-md rounded-full"
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            >
-                <MoreVertical className="w-6 h-6 text-gray-700" />
-            </button>
-
-            {/* Sidebar */}
-            <div
-                className={`h-screen shadow-md border bg-white flex flex-col sm:w-64 w-64 fixed z-40 transform ${
-                    isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                } sm:translate-x-0 transition-transform duration-300`}
-            >
-                <div className="p-5">
-                    {menuList.map((menu, index) => (
-                        <Link
-                            href={menu.path}
-                            key={index}
-                            className={`flex items-center gap-3 p-4 mb-3
-                            hover:bg-primary hover:text-white rounded-lg
-                            cursor-pointer text-gray-500
-                            ${path === menu.path && 'bg-primary text-white'}
-                            `}
-                        >
-                            <menu.icon className="w-5 h-5" />
-                            <span className={`${isSidebarOpen ? 'inline' : 'hidden'} sm:inline`}>
-                                {menu.name}
-                            </span>
-                        </Link>
-                    ))}
+        <div className="h-screen shadow-md border bg-white flex flex-col">
+            <div className="p-5 border-b">
+                <Link href={"/"}>
+                    <Image src={'/logo.svg'} width={160} height={100} alt='logo' />
+                </Link>
+            </div>
+            <div className="flex-grow p-5">
+                {menuList.map((menu, index) => (
+                    <Link
+                        href={menu.path}
+                        key={index}
+                        className={`flex items-center gap-3 p-4 mb-3
+                        hover:bg-primary hover:text-white rounded-lg
+                        cursor-pointer text-gray-500
+                        ${path === menu.path && 'bg-primary text-white'}
+                        `}
+                    >
+                        <menu.icon />
+                        {menu.name}
+                    </Link>
+                ))}
+            </div>
+            <div className="mt-auto p-6 border-t">
+                <div className="my-7">
+                    <Progress value={PercFileCreated} />
+                    <h2 className="text-sm mt-2 text-gray-600">
+                        <strong>{formList?.length} </strong>Out of <strong>3</strong> File Created
+                    </h2>
+                    <h2 className="text-sm mt-3 text-gray-600">
+                        Upgrade your plan for unlimited AI form build
+                    </h2>
                 </div>
-                <div className="mt-auto p-6 sm:w-64 w-full">
-                    {/* <Button className="w-full">+ Create Form</Button> */}
-                    <div className="my-7">
-                        <Progress value={PercFileCreated} />
-                        <h2 className="text-sm mt-2 text-gray-600">
-                            <strong>{formList?.length} </strong>Out of <strong>3</strong> File Created
-                        </h2>
-                        <h2 className="text-sm mt-3 text-gray-600">
-                            Upgrade your plan for unlimited AI form build
-                        </h2>
-                    </div>
+                <div className="flex items-center gap-3">
+                    <UserButton />
+                    <span className="text-sm font-medium text-gray-700">{user?.fullName}</span>
                 </div>
             </div>
-
-            {/* Overlay for Sidebar on Small Screens */}
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-30 sm:hidden"
-                    onClick={() => setIsSidebarOpen(false)}
-                ></div>
-            )}
-        </>
+        </div>
     );
 }
 

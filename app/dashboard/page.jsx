@@ -1,34 +1,34 @@
-// app/dashboard/page.jsx
-
+"use client" // Add this since we are using a hook
 import React from 'react'
 import CreateForm from './_components/CreateForm'
 import FormList from './_components/FormList'
+import { useUser } from '@clerk/nextjs'
 
 function Dashboard() {
+    const { user } = useUser();
+
     return (
-        <div className="p-6 sm:p-8 lg:p-10 bg-gray-50 dark:bg-gray-900 min-h-screen">
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-6 sm:p-10">
+            {/* Page Header */}
+            <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10 pb-6 border-b">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-                        Dashboard
+                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+                        Welcome back, {user?.firstName}!
                     </h1>
-                    <p className="mt-1 text-md text-gray-500 dark:text-gray-400">
-                        Create and manage your AI-powered forms.
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">
+                        Here's where you can manage, edit, and view responses for all your forms.
                     </p>
                 </div>
-                {/* The CreateForm button is a clear call-to-action */}
-                <CreateForm />
-            </div>
+                <div className="w-full sm:w-auto">
+                    <CreateForm />
+                </div>
+            </header>
 
-            {/* Main Content Area */}
-            <div className="mt-6">
-                <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200">My Forms</h2>
-                <p className="mt-1 text-gray-500 dark:text-gray-400 mb-6">View, edit, and share all the forms you have created.</p>
+            {/* Title for the forms section */}
+            <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-6">My Forms</h2>
 
-                {/* FormList handles fetching and displaying the attractive cards */}
-                <FormList />
-            </div>
+            {/* Form List */}
+            <FormList />
         </div>
     )
 }
