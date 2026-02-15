@@ -1,49 +1,62 @@
-import { Sparkles, Edit3, Send } from "lucide-react";
+import { BarChart3, Edit3, Send, Share2, Shield, Sparkles } from "lucide-react";
+
+const features = [
+  {
+    icon: Sparkles,
+    title: "Describe your form",
+    description: "Type what you want to collect and FormAI creates structured fields automatically.",
+  },
+  {
+    icon: Edit3,
+    title: "Edit instantly",
+    description: "Fine-tune labels, placeholders, options, themes, and layout without touching code.",
+  },
+  {
+    icon: Send,
+    title: "Share in seconds",
+    description: "Publish your form link immediately and start collecting responses right away.",
+  },
+  {
+    icon: BarChart3,
+    title: "Track performance",
+    description: "Monitor response volume and form engagement from a unified analytics screen.",
+  },
+  {
+    icon: Shield,
+    title: "Secure by default",
+    description: "Add sign-in requirements when needed and protect submissions with authenticated flows.",
+  },
+  {
+    icon: Share2,
+    title: "Theme your forms",
+    description: "Use built-in themes, gradient backgrounds, and styles to match your brand identity.",
+  },
+];
 
 export default function FeaturesSection() {
   return (
-    <section
-      id="features"
-      className="py-20 bg-gray-50 relative flex items-center justify-center overflow-hidden"
-    >
-      <div className="mx-auto max-w-5xl px-4">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-4xl font-extrabold text-gray-900">Effortless Form Creation</h2>
-          <p className="mt-4 text-lg text-gray-700">
-            Build, customize, and share forms in just a few clicks. No coding, no hassle.
+    <section id="features" className="bg-white py-20 sm:py-24">
+      <div className="page-shell">
+        <div className="mx-auto mb-14 max-w-2xl text-center">
+          <div className="badge-primary mb-4">Features</div>
+          <h2 className="font-accent text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Everything you need to build better forms
+          </h2>
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
+            From AI generation to exports and analytics, every step is fast and easy.
           </p>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
-          <div className="rounded-2xl border border-gray-100 p-8 shadow-sm hover:shadow-lg transition-all bg-white flex flex-col items-center text-center">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 mb-4">
-              <Sparkles className="h-7 w-7 text-blue-500" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Describe Your Form</h3>
-            <p className="text-gray-600">
-              Tell our AI what you need—registration, survey, feedback, and more. We’ll handle the structure.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-gray-100 p-8 shadow-sm hover:shadow-lg transition-all bg-white flex flex-col items-center text-center">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-teal-100 mb-4">
-              <Edit3 className="h-7 w-7 text-teal-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Customize Instantly</h3>
-            <p className="text-gray-600">
-              Refine your form with our easy editor. Add, remove, or tweak fields in seconds.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-gray-100 p-8 shadow-sm hover:shadow-lg transition-all bg-white flex flex-col items-center text-center">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 mb-4">
-              <Send className="h-7 w-7 text-blue-500" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Share & Collect</h3>
-            <p className="text-gray-600">
-              Share your form link and start collecting responses instantly. Track everything in real time.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => (
+            <article key={feature.title} className="surface-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">
+              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary">
+                <feature.icon size={20} />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">{feature.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
+            </article>
+          ))}
         </div>
       </div>
     </section>
