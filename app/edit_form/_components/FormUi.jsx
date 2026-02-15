@@ -1,193 +1,174 @@
-import { Input } from '@/components/ui/input'
-import React, { useEffect, useRef, useState } from 'react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input";
+import React, { useRef, useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+import FieldEdit from "./FieldEdit";
+import { db } from "@/configs";
+import { userResponses } from "@/configs/schema";
+import moment from "moment";
+import { toast } from "sonner";
+import { SignInButton, useUser } from "@clerk/nextjs";
 
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Button } from '@/components/ui/button'
-import { Pen } from 'lucide-react'
-// import FieldEdit from './FieldEdit'
-import FieldEdit from './FieldEdit'
-import { db } from '@/configs'
-import { userResponses } from '@/configs/schema'
-import moment from 'moment'
-import { toast } from 'sonner'
-import { SignInButton, useUser } from '@clerk/nextjs'
+function FormUi({
+  jsonForm,
+  selectedTheme,
+  selectedStyle,
+  onFieldUpdate,
+  deleteField,
+  editable = true,
+  formId = 0,
+  enabledSignIn = false,
+}) {
+  const [formData, setFormData] = useState({});
+  const formRef = useRef(null);
+  const { isSignedIn } = useUser();
 
-function FormUi({ jsonForm,selectedTheme,selectedStyle, 
-  onFieldUpdate,deleteField,editable=true,formId=0,enabledSignIn=false }) {
-    const [formData,setFormData]=useState();
-   let formRef=useRef();
-  const {user,isSignedIn}=useUser();
-  const handleInputChange=(event)=>{
-    const {name,value}=event.target;
-    setFormData({
-      ...formData,
-      [name]:value
-    })
-  }
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const hadleSelectChange=(name,value)=>{
-    setFormData({
-      ...formData,
-      [name]:value
-    })
-  }
+  const handleSelectChange = (name, value) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const onFormSubmit=async(event)=>{
-    event.preventDefault()
-    console.log(formData);
-
-    const result=await db.insert(userResponses)
-    .values({
-      jsonResponse:formData,
-      createdAt:moment().format('DD/MM/yyy'),
-      formRef:formId
-    })
-
-    if(result)
-    {
-      formRef.reset();
-      toast('Response Submitted Successfully !')
+  const handleCheckboxChange = (fieldName, itemName, value) => {
+    const list = formData?.[fieldName] ? [...formData[fieldName]] : [];
+    if (value) {
+      list.push({ label: itemName, value: value });
+      setFormData((prev) => ({ ...prev, [fieldName]: list }));
+    } else {
+      const updated = list.filter((item) => item.label !== itemName);
+      setFormData((prev) => ({ ...prev, [fieldName]: updated }));
     }
-    else{
-      toast('Error while saving your form !')
+  };
 
-    }
-  }
+  const onFormSubmit = async (event) => {
+    event.preventDefault();
 
-  const handleCheckboxChange=(fieldName, itemName, value)=>{
-    
-    const list=formData?.[fieldName]?formData?.[fieldName]:[];
-   
-    if(value)
-    {
-      list.push({
-        label:itemName,
-        value:value
-      })
-      setFormData({
-        ...formData,
-        [fieldName]:list
-      })
-    }else{
-    const result=  list.filter((item)=>item.label==itemName);
-    setFormData({
-      ...formData,
-      [fieldName]:result
-    })
+    const result = await db.insert(userResponses).values({
+      jsonResponse: formData,
+      createdAt: moment().format("DD/MM/YYYY"),
+      formRef: formId,
+    });
+
+    if (result) {
+      formRef.current?.reset();
+      setFormData({});
+      toast.success("Response submitted successfully.");
+    } else {
+      toast.error("Could not submit the response.");
     }
-    
-  }
+  };
 
   return (
-    <form 
-    
-    ref={(e)=>formRef=e}
-    onSubmit={onFormSubmit}
-    className='border p-5 md:w-[600px] rounded-lg'
-     data-theme={selectedTheme}
-     style={{
-      boxShadow: selectedStyle?.key=='boxshadow'&& '5px 5px 0px black',
-      border:selectedStyle?.key=='border'&&selectedStyle.value
-    }}
-     >
- 
-      <h2 className='font-bold text-center text-2xl'>{jsonForm?.formTitle}</h2>
-      <h2 className='text-sm text-gray-400 text-center'>{jsonForm?.formHeading}</h2>
+    <form
+      ref={formRef}
+      onSubmit={onFormSubmit}
+      className="rounded-2xl border border-border bg-white p-5 shadow-card sm:p-6"
+      data-theme={selectedTheme}
+      style={{
+        boxShadow: selectedStyle?.key === "boxshadow" ? "5px 5px 0px black" : undefined,
+        border: selectedStyle?.key === "border" ? selectedStyle.value : undefined,
+      }}
+    >
+      <h2 className="text-center font-accent text-2xl font-semibold text-foreground">{jsonForm?.formTitle}</h2>
+      <p className="mt-1 text-center text-sm text-muted-foreground">{jsonForm?.formHeading}</p>
 
-      {jsonForm?.fields?.map((field, index) => (
-        <div key={index} className='flex items-center gap-2'>
-          {field.fieldType == 'select' ?
-            <div className='my-3 w-full'>
-              <label className='text-xs text-gray-500'>{field.label}</label>
-
-              <Select  required={field?.required} 
-              onValueChange={(v)=>hadleSelectChange(field.fieldName,v)}>
-                <SelectTrigger className="w-full bg-transparent">
-                  <SelectValue placeholder={field.placeholder} />
-                </SelectTrigger>
-                <SelectContent>
-                  {field.options.map((item, index) => (
-                    <SelectItem key={index} value={item.label?item.label:item}>{item.label?item.label:item}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            : field.fieldType == 'radio' ?
-              <div className='w-full my-3'>
-                <label className='text-xs text-gray-500'>{field.label}</label>
-
-                <RadioGroup required={field?.required} >
-                  {field.options.map((item, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <RadioGroupItem value={item.label} id={item.label}
-                      onClick={()=>hadleSelectChange(field.fieldName,item.label)}
-                      />
-                      <Label htmlFor={item.label}>{item.label}</Label>
+      <div className="mt-6 space-y-2">
+        {jsonForm?.fields?.map((field, index) => (
+          <div key={`${field.fieldName || field.label}-${index}`} className="flex items-start gap-2">
+            {field.fieldType === "select" ? (
+              <div className="w-full space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">{field.label}</label>
+                <Select required={field?.required} onValueChange={(value) => handleSelectChange(field.fieldName, value)}>
+                  <SelectTrigger className="w-full bg-transparent">
+                    <SelectValue placeholder={field.placeholder} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {field.options?.map((item, itemIndex) => {
+                      const value = item.label ? item.label : item;
+                      return (
+                        <SelectItem key={`${value}-${itemIndex}`} value={value}>
+                          {value}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : field.fieldType === "radio" ? (
+              <div className="w-full space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">{field.label}</label>
+                <RadioGroup required={field?.required}>
+                  {field.options?.map((item, itemIndex) => (
+                    <div key={`${item.label || item}-${itemIndex}`} className="flex items-center gap-2">
+                      <RadioGroupItem value={item.label || item} id={`${field.fieldName}-${itemIndex}`} onClick={() => handleSelectChange(field.fieldName, item.label || item)} />
+                      <Label htmlFor={`${field.fieldName}-${itemIndex}`}>{item.label || item}</Label>
                     </div>
                   ))}
-
-
                 </RadioGroup>
-
               </div>
-              :field.fieldType=='checkbox'?
-              <div className='my-3 w-full'>
-                <label className='text-xs text-gray-500'>{field?.label}</label>
-                {field?.options?field?.options?.map((item,index)=>(
-                  <div key={index} className='flex gap-2 items-center'>
-                     <Checkbox  
-                     onCheckedChange={(v)=>handleCheckboxChange(field?.label,item.label?item.label:item,v)}  />
-                    <h2>{item.label?item.label:item}</h2>
-                 
+            ) : field.fieldType === "checkbox" ? (
+              <div className="w-full space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">{field?.label}</label>
+                {field?.options ? (
+                  field.options.map((item, itemIndex) => (
+                    <div key={`${item.label || item}-${itemIndex}`} className="flex items-center gap-2">
+                      <Checkbox onCheckedChange={(value) => handleCheckboxChange(field?.label, item.label ? item.label : item, value)} />
+                      <span className="text-sm text-foreground">{item.label ? item.label : item}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Checkbox required={field.required} />
+                    <span className="text-sm text-foreground">{field.label}</span>
                   </div>
-                ))
-              :
-              <div className='flex gap-2 items-center'>
-                <Checkbox required={field.required} />
-                <h2>{field.label}</h2>
+                )}
               </div>
-              }
-                </div>
-
-              : <div className='my-3 w-full'>
-                <label className='text-xs text-gray-500'>{field.label}</label>
-                <Input type={field?.type}
+            ) : (
+              <div className="w-full space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">{field.label}</label>
+                <Input
+                  type={field?.type}
                   placeholder={field.placeholder}
                   name={field.fieldName}
                   className="bg-transparent"
                   required={field?.required}
-                  onChange={(e)=>handleInputChange(e)}
+                  onChange={handleInputChange}
                 />
-              </div>}
+              </div>
+            )}
 
-            {editable&&  <div>
-                <FieldEdit defaultValue={field}
-                onUpdate={(value)=>onFieldUpdate(value,index)}
-                deleteField={()=>deleteField(index)}
-                />
-              </div>}
-        </div>
-      ))}
-      {!enabledSignIn?
-       <button  className='btn btn-primary'>Submit</button>:
-      isSignedIn?
-    <button  className='btn btn-primary'>Submit</button>:
-    <Button>
-      <SignInButton mode='modal' >Sign In before Submit</SignInButton>
-    </Button> } 
-    
-      
+            {editable ? (
+              <FieldEdit
+                defaultValue={field}
+                onUpdate={(value) => onFieldUpdate(value, index)}
+                deleteField={() => deleteField(index)}
+              />
+            ) : null}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6">
+        {!enabledSignIn || isSignedIn ? (
+          <Button type="submit" className="w-full rounded-xl">
+            Submit
+          </Button>
+        ) : (
+          <SignInButton mode="modal">
+            <Button type="button" className="w-full rounded-xl">
+              Sign in before submitting
+            </Button>
+          </SignInButton>
+        )}
+      </div>
     </form>
-  )
+  );
 }
 
-export default FormUi
+export default FormUi;

@@ -1,95 +1,101 @@
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { db } from '@/configs';
-import { JsonForms } from '@/configs/schema';
-import { useUser, UserButton } from '@clerk/nextjs';
-import { desc, eq } from 'drizzle-orm';
-import { LibraryBig, LineChart, MessageSquare, Shield, MoreVertical } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+"use client";
 
-function SideNav() {
-    const menuList = [
-        {
-            id: 1,
-            name: 'My Forms',
-            icon: LibraryBig,
-            path: '/dashboard',
-        },
-        {
-            id: 2,
-            name: 'Responses',
-            icon: MessageSquare,
-            path: '/dashboard/responses',
-        },
+import React from "react";
+import { useUser } from "@clerk/nextjs";
+import { BarChart3, ChevronLeft, ChevronRight, LibraryBig, MessageSquare, Sparkles, X } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-    ];
+function SideNav({ onClose, isCollapsed, toggleCollapse }) {
+  const menuList = [
+    { id: 1, name: "My Forms", icon: LibraryBig, path: "/dashboard" },
+    { id: 2, name: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },
+    { id: 3, name: "Responses", icon: MessageSquare, path: "/dashboard/responses" },
+  ];
 
-    const { user } = useUser();
-    const path = usePathname();
-    const [formList, setFormList] = useState();
-    const [PercFileCreated, setPercFileCreated] = useState(0);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { user } = useUser();
+  const path = usePathname();
 
-    useEffect(() => {
-        user && GetFormList();
-    }, [user]);
+  return (
+    <div className={`relative flex h-full flex-col bg-white ${isCollapsed ? "w-20" : "w-64"}`}>
+      <button
+        onClick={toggleCollapse}
+        className="absolute -right-3 top-8 hidden rounded-full border border-border bg-white p-1 text-muted-foreground shadow-sm transition-colors hover:text-foreground md:flex"
+      >
+        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+      </button>
 
-    const GetFormList = async () => {
-        const result = await db
-            .select()
-            .from(JsonForms)
-            .where(eq(JsonForms.createdBy, user?.primaryEmailAddress?.emailAddress))
-            .orderBy(desc(JsonForms.id));
+      <div className={`flex items-center border-b border-border p-5 ${isCollapsed ? "justify-center" : "justify-between"}`}>
+        {!isCollapsed ? (
+          <Link href="/dashboard" onClick={onClose}>
+            <Image src="/logo.svg" width={130} height={32} alt="FormAI logo" />
+          </Link>
+        ) : (
+          <Link href="/dashboard" onClick={onClose}>
+            <Image src="/file.svg" width={28} height={28} alt="FormAI icon" />
+          </Link>
+        )}
+        <button className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground md:hidden" onClick={onClose}>
+          <X size={18} />
+        </button>
+      </div>
 
-        setFormList(result);
+      <nav className="flex-1 space-y-1 p-4">
+        {!isCollapsed ? <p className="mb-3 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Navigation</p> : null}
+        {menuList.map((menu) => {
+          const active = path === menu.path;
+          return (
+            <Link
+              key={menu.id}
+              href={menu.path}
+              onClick={onClose}
+              className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                active ? "sidebar-active" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              } ${isCollapsed ? "justify-center px-2" : ""}`}
+            >
+              <menu.icon size={19} className="flex-shrink-0" />
+              {!isCollapsed ? <span className="truncate">{menu.name}</span> : null}
+              {isCollapsed ? (
+                <span className="pointer-events-none absolute left-full ml-2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background opacity-0 shadow-md transition-opacity group-hover:opacity-100">
+                  {menu.name}
+                </span>
+              ) : null}
+            </Link>
+          );
+        })}
+      </nav>
 
-        const perc = (result.length / 3) * 100;
-        setPercFileCreated(perc);
-    };
-
-    return (
-        <div className="h-screen shadow-md border bg-white flex flex-col">
-            <div className="p-5 border-b">
-                <Link href={"/"}>
-                    <Image src={'/logo.svg'} width={160} height={100} alt='logo' />
-                </Link>
+      {!isCollapsed ? (
+        <div className="px-4 pb-4">
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
+            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+              <Sparkles size={15} className="text-primary" />
+              Upgrade plan
             </div>
-            <div className="flex-grow p-5">
-                {menuList.map((menu, index) => (
-                    <Link
-                        href={menu.path}
-                        key={index}
-                        className={`flex items-center gap-3 p-4 mb-3
-                        hover:bg-primary hover:text-white rounded-lg
-                        cursor-pointer text-gray-500
-                        ${path === menu.path && 'bg-primary text-white'}
-                        `}
-                    >
-                        <menu.icon />
-                        {menu.name}
-                    </Link>
-                ))}
-            </div>
-            <div className="mt-auto p-6 border-t">
-                <div className="my-7">
-                    <Progress value={PercFileCreated} />
-                    <h2 className="text-sm mt-2 text-gray-600">
-                        <strong>{formList?.length} </strong>Out of <strong>3</strong> File Created
-                    </h2>
-                    <h2 className="text-sm mt-3 text-gray-600">
-                        Upgrade your plan for unlimited AI form build
-                    </h2>
-                </div>
-                <div className="flex items-center gap-3">
-                    <UserButton />
-                    <span className="text-sm font-medium text-gray-700">{user?.fullName}</span>
-                </div>
-            </div>
+            <p className="text-xs text-muted-foreground">Unlock unlimited form generation and advanced insights.</p>
+            <Link href="/dashboard/upgrade" className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary/90">
+              Upgrade now
+            </Link>
+          </div>
         </div>
-    );
+      ) : null}
+
+      <div className={`mt-auto border-t border-border p-4 ${isCollapsed ? "flex justify-center" : ""}`}>
+        <div className="flex w-full items-center gap-3">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+            {user?.firstName?.charAt(0) || "U"}
+          </div>
+          {!isCollapsed ? (
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-foreground">{user?.fullName || "User"}</p>
+              <p className="truncate text-xs text-muted-foreground">{user?.primaryEmailAddress?.emailAddress}</p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default SideNav;

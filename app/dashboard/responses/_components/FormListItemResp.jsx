@@ -1,83 +1,71 @@
-// app/dashboard/responses/_components/FormListItemResp.jsx
+import { Button } from "@/components/ui/button";
+import { db } from "@/configs";
+import { userResponses } from "@/configs/schema";
+import { eq } from "drizzle-orm";
+import { Download, Loader2, MessageSquare } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import * as XLSX from "xlsx";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button'
-import { db } from '@/configs'
-import { userResponses } from '@/configs/schema'
-import { eq } from 'drizzle-orm'
-import { Loader2 } from 'lucide-react'
-import React, { useEffect, useState } from 'react' // Import useEffect
-import * as XLSX from 'xlsx';
+function FormListItemResp({ jsonForm, formRecord }) {
+  const [loading, setLoading] = useState(false);
+  const [responseCount, setResponseCount] = useState(0);
 
-function FormListItemResp({jsonForm,formRecord}) {
+  useEffect(() => {
+    const getResponseCount = async () => {
+      const result = await db.select().from(userResponses).where(eq(userResponses.formRef, formRecord.id));
+      setResponseCount(result?.length || 0);
+    };
+    getResponseCount();
+  }, [formRecord]);
 
-    const [loading,setLoading]=useState(false);
-    const [responseCount, setResponseCount] = useState(0); // State to hold response count
+  const exportToExcel = (jsonData) => {
+    const worksheet = XLSX.utils.json_to_sheet(jsonData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Responses");
+    XLSX.writeFile(workbook, `${jsonForm?.formTitle || "Form_Responses"}.xlsx`);
+    toast.success("Responses exported.");
+  };
 
-    // Fetch response count when component mounts or formRecord changes
-    useEffect(() => {
-        const getResponseCount = async () => {
-            const result = await db.select().from(userResponses)
-                .where(eq(userResponses.formRef, formRecord.id));
-            if (result) {
-                setResponseCount(result.length);
-            }
-        };
-        getResponseCount();
-    }, [formRecord]);
+  const exportData = async () => {
+    setLoading(true);
+    const result = await db.select().from(userResponses).where(eq(userResponses.formRef, formRecord.id));
 
-    const ExportData=async()=>{
-        let jsonData=[];
-        setLoading(true);
-        const result=await db.select().from(userResponses)
-        .where(eq(userResponses.formRef,formRecord.id));
-
-        console.log(result);
-        if(result)
-        {
-            result.forEach((item)=>{
-                const jsonItem=JSON.parse(item.jsonResponse);
-                jsonData.push(jsonItem);
-            })
-            setLoading(false);
-        }
-        console.log(jsonData);
-        exportToExcel(jsonData)
+    if (result?.length) {
+      const jsonData = result.map((item) => JSON.parse(item.jsonResponse));
+      setLoading(false);
+      exportToExcel(jsonData);
+    } else {
+      setLoading(false);
+      toast.error("No responses available for export.");
     }
-
-
-    /**
-     * Convert Json to Excel and then Donwload it
-     */
-    const exportToExcel=(jsonData)=>{
-        if (jsonData.length === 0) {
-            alert("No responses to export!");
-            return;
-        }
-        const worksheet = XLSX.utils.json_to_sheet(jsonData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-
-        XLSX.writeFile(workbook, jsonForm?.formTitle+".xlsx");
-    }
+  };
 
   return (
-    <div className='border shadow-sm rounded-lg p-4 my-5'>
-
-        <h2 className='text-lg text-black'>{jsonForm?.formTitle}</h2>
-        <h2 className='text-sm text-gray-500'>{jsonForm?.formHeading}</h2>
-        <hr className='my-4'></hr>
-        <div className='flex justify-between items-center'>
-            {/* Display the dynamic response count */}
-            <h2 className='text-sm'><strong>{responseCount}</strong> Responses</h2>
-            <Button className="" size="sm"
-            onClick={()=>ExportData()}
-            disabled={loading}
-            >
-                {loading?<Loader2 className='animate-spin' />:'Export' }
-                </Button>
+    <article className="surface-card flex h-full flex-col p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated">
+      <div className="mb-4 flex items-start justify-between">
+        <div className="rounded-xl bg-secondary/60 p-2.5">
+          <MessageSquare className="h-5 w-5 text-primary" />
         </div>
-    </div>
-  )
+        <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground">
+          {formRecord?.createdAt?.split("T")[0] || "Unknown date"}
+        </span>
+      </div>
+
+      <div className="mb-6">
+        <h2 className="line-clamp-1 text-lg font-semibold text-foreground">{jsonForm?.formTitle}</h2>
+        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{jsonForm?.formHeading}</p>
+      </div>
+
+      <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
+        <span className="badge-primary">{responseCount} responses</span>
+        <Button onClick={exportData} disabled={loading || responseCount === 0} variant="outline" size="sm" className="h-9 gap-2 rounded-lg">
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          <span className="hidden sm:inline">Export</span>
+        </Button>
+      </div>
+    </article>
+  );
 }
 
-export default FormListItemResp
+export default FormListItemResp;
